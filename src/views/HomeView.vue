@@ -1,7 +1,9 @@
-<script setup></script>
+<script setup>
+import Timeline from "../components/Timeline.vue";
+</script>
 
 <template>
   <main>
-    <a-button type="primary">Primary Button</a-button>
+    <Timeline></Timeline>
   </main>
 </template>
