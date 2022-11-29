@@ -1,5 +1,10 @@
 <script setup>
 import { ref, defineProps } from "vue";
+import { useUserStore } from "../stores/users";
+
+const userStore = useUserStore();
+const { errorMessage, handleSignup } = userStore;
+
 const visible = ref(false);
 
 const props = defineProps(["isLogin"]);

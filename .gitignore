@@ -12,6 +12,7 @@ node_modules
 dist
 dist-ssr
 coverage
+config.js
 *.local
 
 /cypress/videos/
