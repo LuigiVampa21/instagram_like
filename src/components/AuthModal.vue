@@ -4,7 +4,7 @@ import { useUserStore } from "../stores/users";
 import { storeToRefs } from "pinia";
 
 const userStore = useUserStore();
-const { errorMessage, loading } = storeToRefs(userStore);
+const { errorMessage, loading, user } = storeToRefs(userStore);
 
 const visible = ref(false);
 
@@ -32,12 +32,13 @@ const clearCredentials = () => {
 const handleOk = async () => {
   if (!props.isLogin) {
     await userStore.handleSignup(credentials);
-    if (userStore.user.value) {
-      clearCredentials();
-      visible.value = false;
-    }
   } else {
-    await userStore.handleLogin(credentials);
+    await userStore.handleLogin({
+      email: credentials.email,
+      password: credentials.password,
+    });
+  }
+  if (user.value) {
     clearCredentials();
     visible.value = false;
   }

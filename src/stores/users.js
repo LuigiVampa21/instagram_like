@@ -6,6 +6,7 @@ export const useUserStore = defineStore("user", () => {
   const user = ref(null);
   let errorMessage = ref("");
   const loading = ref(false);
+  const loadingUser = ref(false);
 
   const validateEmail = email => {
     return String(email)
@@ -27,12 +28,28 @@ export const useUserStore = defineStore("user", () => {
     }
 
     loading.value = true;
-    try {
-      const user = await supabase.auth.signInWithPassword(credentials);
-      console.log(user);
-    } catch (err) {
-      console.error(err);
+    const { error, data } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) {
+      loading.value = false;
+      return (errorMessage.value = error.message);
     }
+
+    const { data: userLoggedin } = await supabase
+      .from("users")
+      .select()
+      .eq("email", email)
+      .single();
+
+    user.value = {
+      id: userLoggedin.id,
+      username: userLoggedin.username,
+      email: userLoggedin.email,
+    };
+    loading.value = false;
+    errorMessage.value = "";
   };
 
   const handleSignup = async credentials => {
@@ -49,60 +66,81 @@ export const useUserStore = defineStore("user", () => {
     }
     loading.value = true;
     errorMessage.value = "";
-    try {
-      const { data: usernameAlreadyTaken } = await supabase
-        .from("users")
-        .select()
-        .eq("username", username)
-        .single();
+    const { data: usernameAlreadyTaken } = await supabase
+      .from("users")
+      .select()
+      .eq("username", username)
+      .single();
 
-      if (usernameAlreadyTaken) {
-        loading.value = false;
-        return (errorMessage.value = "Username already exists");
-      }
-
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        email_confirm: true,
-      });
-      if (error) {
-        loading.value = false;
-        return (errorMessage.value = error.message);
-      }
-
-      await supabase.from("users").insert({
-        username,
-        email,
-      });
-
-      const { data: newUser } = await supabase
-        .from("users")
-        .select()
-        .eq("email", email)
-        .single();
-
-      user.value = {
-        id: newUser.id,
-        username: newUser.username,
-        email: newUser.email,
-        password: newUser,
-      };
-
+    if (usernameAlreadyTaken) {
       loading.value = false;
-    } catch (err) {
-      console.error(err);
-      loading.value = false;
+      return (errorMessage.value = "Username already exists");
     }
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    if (error) {
+      loading.value = false;
+      return (errorMessage.value = error.message);
+    }
+
+    await supabase.from("users").insert({
+      username,
+      email,
+    });
+
+    const { data: newUser } = await supabase
+      .from("users")
+      .select()
+      .eq("email", email)
+      .single();
+
+    user.value = {
+      id: newUser.id,
+      username: newUser.username,
+      email: newUser.email,
+      password: newUser,
+    };
+
+    loading.value = false;
+    loading.value = false;
   };
-  const handleLogout = () => {};
-  const getUser = () => {};
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    user.value = null;
+  };
+  const getUser = async () => {
+    loadingUser.value = true;
+    const { data } = await supabase.auth.getUser();
+
+    if (!data.user) {
+      loadingUser.value = false;
+      return (user.value = null);
+    }
+
+    const { data: currentUser } = await supabase
+      .from("users")
+      .select()
+      .eq("email", data.user.email)
+      .single();
+
+    user.value = {
+      id: currentUser.id,
+      username: currentUser.username,
+      email: currentUser.email,
+    };
+    loadingUser.value = false;
+  };
   const clearErrorMessage = () => {
     errorMessage.value = "";
   };
   return {
     user,
     loading,
+    user,
+    loadingUser,
     handleLogin,
     handleSignup,
     handleLogout,
