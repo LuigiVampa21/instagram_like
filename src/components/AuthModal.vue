@@ -4,7 +4,7 @@ import { useUserStore } from "../stores/users";
 import { storeToRefs } from "pinia";
 
 const userStore = useUserStore();
-const { errorMessage } = storeToRefs(userStore);
+const { errorMessage, loading } = storeToRefs(userStore);
 
 const visible = ref(false);
 
@@ -22,12 +22,29 @@ const showModal = () => {
   visible.value = true;
 };
 
-const handleOk = () => {
-  userStore.handleSignup(credentials);
+const clearCredentials = () => {
+  credentials.email = "";
+  credentials.username = "";
+  credentials.password = "";
+  userStore.clearErrorMessage();
+};
+
+const handleOk = async () => {
+  if (!props.isLogin) {
+    await userStore.handleSignup(credentials);
+    if (userStore.user.value) {
+      clearCredentials();
+      visible.value = false;
+    }
+  } else {
+    await userStore.handleLogin(credentials);
+    clearCredentials();
+    visible.value = false;
+  }
 };
 
 const handleCancel = () => {
-  userStore.clearErrorMessage();
+  clearCredentials();
 };
 </script>
 
@@ -42,31 +59,37 @@ const handleCancel = () => {
         <a-button
           key="submit"
           type="primary"
+          :disabled="loading"
           :loading="loading"
           @click="handleOk"
           >Submit</a-button
         >
       </template>
-      <a-input
-        class="input"
-        v-if="!isLogin"
-        v-model:value="credentials.username"
-        placeholder="Username"
-      ></a-input>
-      <a-input
-        class="input"
-        v-model:value="credentials.email"
-        placeholder="Email"
-      ></a-input>
-      <a-input
-        class="input"
-        type="password"
-        v-model:value="credentials.password"
-        placeholder="Password"
-      ></a-input>
-      <a-typography-text v-if="errorMessage" type="danger">{{
-        errorMessage
-      }}</a-typography-text>
+      <div v-if="!loading" class="input-container">
+        <a-input
+          class="input"
+          v-if="!isLogin"
+          v-model:value="credentials.username"
+          placeholder="Username"
+        ></a-input>
+        <a-input
+          class="input"
+          v-model:value="credentials.email"
+          placeholder="Email"
+        ></a-input>
+        <a-input
+          class="input"
+          type="password"
+          v-model:value="credentials.password"
+          placeholder="Password"
+        ></a-input>
+        <a-typography-text v-if="errorMessage" type="danger">{{
+          errorMessage
+        }}</a-typography-text>
+      </div>
+      <div v-else class="spinner">
+        <a-spin></a-spin>
+      </div>
     </a-modal>
   </div>
 </template>
@@ -77,5 +100,14 @@ const handleCancel = () => {
 }
 .input {
   margin-top: 5px;
+}
+.input-container {
+  height: 120px;
+}
+.spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 120px;
 }
 </style>
