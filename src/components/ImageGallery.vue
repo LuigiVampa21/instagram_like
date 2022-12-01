@@ -4,8 +4,6 @@ import { ref } from "vue";
 import config from "../../config";
 const props = defineProps(["posts"]);
 const bucketUrl = ref(config.SUPABASE_BUCKET_URL);
-console.log(bucketUrl.value);
-console.log(props.posts);
 </script>
 
 <template>
