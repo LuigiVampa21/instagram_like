@@ -11,15 +11,16 @@
     "test:e2e:dev": "start-server-and-test 'vite dev --port 4173' :4173 'cypress open --e2e'"
   },
   "dependencies": {
-    "@babel/types": "^7.20.5",
     "@supabase/supabase-js": "^2.1.1",
     "ant-design-vue": "^3.2.15",
     "dotenv": "^16.0.3",
     "pinia": "^2.0.26",
+    "uuid": "^9.0.0",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {
+    "@types/uuid": "^9.0.0",
     "@vitejs/plugin-vue": "^3.2.0",
     "@vitejs/plugin-vue-jsx": "^2.1.1",
     "@vue/test-utils": "^2.2.4",

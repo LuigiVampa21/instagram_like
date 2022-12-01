@@ -2,6 +2,13 @@
 import Container from "./Container.vue";
 import UserBar from "./UserBar.vue";
 import ImageGallery from "./ImageGallery.vue";
+import { ref } from "vue";
+
+const posts = ref([]);
+
+const addNewPost = post => {
+  posts.value.unshift(post);
+};
 </script>
 
 <template>
@@ -15,28 +22,18 @@ import ImageGallery from "./ImageGallery.vue";
           followers: 200,
           following: 412,
         }"
+        :addNewPost="addNewPost"
       />
-      <ImageGallery
-        :posts="[
-          {
-            id: 1,
-            image:
-              'https://images.pexels.com/photos/6024542/pexels-photo-6024542.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-          },
-          {
-            id: 2,
-            image:
-              'https://images.pexels.com/photos/5611714/pexels-photo-5611714.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-          },
-          {
-            id: 3,
-            image:
-              'https://images.pexels.com/photos/8919484/pexels-photo-8919484.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-          },
-        ]"
-      />
+      <ImageGallery :posts="posts" />
     </div>
   </Container>
+  <!-- // [ // { // id: 1, // image: //
+'https://images.pexels.com/photos/6024542/pexels-photo-6024542.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+// }, // { // id: 2, // image: //
+'https://images.pexels.com/photos/5611714/pexels-photo-5611714.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+// }, // { // id: 3, // image: //
+'https://images.pexels.com/photos/8919484/pexels-photo-8919484.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+// }, // ]" -->
 </template>
 
 <style scoped>
